@@ -6,6 +6,7 @@ from flask import render_template, Blueprint
 
 from ..updates import get_updates
 from ..builds import get_builds
+from ..packages import count_packages
 from ..bugs import get_bugs
 from ..changelogs import get_changelogs
 from ...server import cache
@@ -43,7 +44,8 @@ def packages_search(package_name=None):
     ]
 
     return render_template("search_results.html",
-                           packages=packages)
+                           packages=packages,
+                           packages_count=count_packages(packages))
 
 
 @main_blueprint.route("/packages/")
