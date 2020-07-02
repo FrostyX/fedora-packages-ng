@@ -37,6 +37,12 @@ Requires:       xstatic-bootstrap-scss-common
 Requires:       xstatic-datatables-common
 Requires:       xstatic-jquery-ui-common
 Requires:       xstatic-patternfly-common
+
+# flask-wtf-decorators is in the package review process
+# https://copr.fedorainfracloud.org/coprs/frostyx/flask-wtf-decorators/
+# https://bugzilla.redhat.com/show_bug.cgi?id=1853510
+Requires:       flask-wtf-decorators
+
 # web service
 Recommends:     httpd
 Recommends:     python3-mod_wsgi

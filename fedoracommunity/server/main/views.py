@@ -4,6 +4,7 @@
 import flask
 from flask import render_template, Blueprint
 
+from . import forms
 from ..updates import get_updates
 from ..builds import get_builds
 from ..packages import get_packages, get_package
@@ -17,14 +18,26 @@ from ...server import cache
 main_blueprint = Blueprint("main", __name__)
 
 
+@forms.validator.error_handler
+def error_handler(errors):
+    for field_errors in errors.values():
+        for error in field_errors:
+            flask.flash(error, category="danger")
+
+    # This unfortunatelly does't fill the searched value back to the form
+    # see https://github.com/simpleapples/flask-wtf-decorators/issues/2
+    return render_template("search_results.html")
+
+
 @main_blueprint.route("/")
 def home():
     return render_template("main/home.html")
 
 
 @main_blueprint.route("/", methods=["POST"])
-def home_post():
-    package_name = flask.request.form["package_name"]
+@forms.validator.validate_form(forms.Search)
+def home_post(form):
+    package_name = form.package_name.data
     if not package_name:
         return home()
     url = "/packages/s/{0}".format(package_name)
@@ -34,6 +47,13 @@ def home_post():
 @main_blueprint.route("/packages/s/")
 @main_blueprint.route("/packages/s/<package_name>/")
 def packages_search(package_name=None):
+    # We cannot use the `validate_form` decorator because it doesn't
+    # support unnamed GET parameters, see
+    # https://github.com/simpleapples/flask-wtf-decorators/issues/1
+    form = forms.Search(package_name=package_name)
+    if not form.validate():
+        return error_handler(form.errors)
+
     packages = get_packages(package_name)
     total = packages.count()
     return render_template("search_results.html",

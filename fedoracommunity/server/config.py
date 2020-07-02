@@ -42,4 +42,3 @@ class ProductionConfig(BaseConfig):
         "DATABASE_URL",
         "sqlite:///{0}".format(os.path.join(basedir, "prod.db")),
     )
-    WTF_CSRF_ENABLED = True
